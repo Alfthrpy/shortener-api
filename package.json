@@ -6,7 +6,6 @@
   "scripts": {
     "start": "nodemon server.js",
     "dev": "nodemon server.js",
-    "build": "tsc",
     "serve": "npm run build && npm start",
     "test": "jest --detectOpenHandles"
   },
