@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from "dotenv";
-import userRoute from './src/route/userRoute.js';
-import shortenerRoute from './src/route/shortenerRoute.js';
-import statsRoute from './src/route/statsRoute.js';
-import authRoute from './src/route/authRoute.js';
-import { swaggerDocs, swaggerUi } from './swagger.js';
+import userRoute from './route/userRoute.js';
+import shortenerRoute from './route/shortenerRoute.js';
+import statsRoute from './route/statsRoute.js';
+import authRoute from './route/authRoute.js';
+import { swaggerDocs, swaggerUi } from '../swagger.js';
 
 dotenv.config();
 

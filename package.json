@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "dev": "nodemon index.js",
+    "start": "nodemon /src/index.js",
+    "dev": "nodemon /src/index.js",
     "build": "tsc",
     "serve": "npm run build && npm start",
     "test": "jest --detectOpenHandles"
