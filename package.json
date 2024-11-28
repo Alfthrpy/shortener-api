@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "dev": "nodemon server.js",
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
     "serve": "npm run build && npm start",
     "test": "jest --detectOpenHandles"
   },
