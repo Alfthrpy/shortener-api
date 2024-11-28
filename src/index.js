@@ -23,6 +23,8 @@ app.use('*', (req, res) => {
     return res.json({error : "not-found"}).status(404)
 });
 
+app.listen(port, () => console.log("Server ready on port 3000."));
+
 export default app;
 
 
