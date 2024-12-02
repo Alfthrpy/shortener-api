@@ -22,12 +22,13 @@ app.use('/api/stats', statsRoute);
 app.use('/api/auth', authRoute);
 app.use('/docs/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/docs/api-docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
+app.use('/',(req,res)=>{res.json({message:"Hello Developer!"})})
 
 app.use('*', (req, res) => {
     return res.status(404).json({ error: "not-found" });
 });
 
-app.listen(3001, () => {
+app.listen(port, () => {
     console.log('listening on port ' + port);
 });
 

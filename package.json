@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/app.js",
-    "dev": "nodemon src/app.ts",
+    "start": "nodemon index.js",
+    "dev": "nodemon index.ts",
     "serve": "npm run build && npm start",
     "test": "jest --detectOpenHandles"
   },
@@ -20,6 +20,8 @@
     "mongodb": "^6.11.0",
     "mongoose": "^8.8.2",
     "nodemon": "^3.1.7",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "shortener": "file:",
     "shortener-api": "file:",
     "shortid": "^2.2.16",
