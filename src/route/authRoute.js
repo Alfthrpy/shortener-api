@@ -5,7 +5,6 @@ import crypto from "crypto"; // Untuk token reset password
 import User from "../../models/user.js";
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import crypto from 'crypto';
 import { sendVerificationEmail,transporter } from "../../utils/email.js";
 
 /**
@@ -385,8 +384,6 @@ router.get('/google/callback',
   }
 );
 
-
-export default router;
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
