@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
-const transporter = nodemailer.createTransport({
+export const transporter = nodemailer.createTransport({
   service: "gmail", // Bisa diganti dengan layanan lain
   auth: {
     user: process.env.EMAIL_USER,

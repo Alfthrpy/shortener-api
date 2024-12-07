@@ -2,7 +2,7 @@ import express from "express";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import User from "../../models/user.js";
-import { transporter } from "../../utils/emailUtils.js"; // Pastikan fungsi email tersedia
+import { transporter } from "../../utils/email.js"; // Pastikan fungsi email tersedia
 
 const router = express.Router();
 

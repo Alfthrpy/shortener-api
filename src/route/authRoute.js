@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto"; // Untuk token reset password
 import User from "../../models/user.js";
-import { sendVerificationEmail } from "../../utils/emailUtils.js";
-import transporter from "../../utils/emailUtils.js";
+import { sendVerificationEmail,transporter } from "../../utils/email.js";
+
 
 /**
  * @swagger
