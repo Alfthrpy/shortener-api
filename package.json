@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/app.js",
-    "dev": "nodemon src/app.ts",
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
     "serve": "npm run build && npm start",
     "test": "jest --detectOpenHandles"
   },
@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.11.0",
     "mongoose": "^8.8.2",
+    "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "shortener": "file:",
     "shortener-api": "file:",

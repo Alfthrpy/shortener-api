@@ -1,7 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs"; // To hash passwords
+import bcrypt from "bcryptjs";
+import crypto from "crypto"; // Untuk token reset password
 import User from "../../models/user.js";
+import { sendVerificationEmail,transporter } from "../../utils/email.js";
+
 
 /**
  * @swagger
@@ -120,6 +123,57 @@ import User from "../../models/user.js";
  *                   example: Server error
  */
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: Password reset email sent
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid or expired token
+ *       500:
+ *         description: Server error
+ */
+
 const router = express.Router();
 
 // Register route
@@ -127,23 +181,46 @@ router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    // Check if the user already exists
+    // Cek apakah user sudah terdaftar
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash the password before saving it to the database
-    console.log("inputed password before hash :" + password);
-
-    // Create a new user and save it
-    const user = new User({ name, email, password});
+    // Simpan user baru
+    const user = new User({ name, email, password });
     await user.save();
 
-    res.status(201).json({ message: "User registered successfully"});
+    // Kirim email verifikasi
+    sendVerificationEmail(email, user._id);
+
+    res.status(201).json({ message: "User registered. Please verify your email." });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Email verification route
+router.get("/verify-email", async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    // Verifikasi token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Tandai user sebagai terverifikasi
+    user.isVerified = true;
+    await user.save();
+
+    res.json({ message: "Email verified successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Invalid or expired token." });
   }
 });
 
@@ -152,19 +229,23 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Compare the provided password with the hashed password
+    // Periksa apakah email sudah diverifikasi
+    if (!user.isVerified) {
+      return res.status(403).json({ message: "Please verify your email first." });
+    }
+
+    // Cocokkan password
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Create a JWT token
+    // Buat token JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -172,6 +253,62 @@ router.post("/login", async (req, res) => {
     res.json({ message: "Login successful", token });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 jam
+    await user.save();
+
+    const resetLink = `${process.env.URL}/api/auth/reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Reset Password",
+      html: `<p>Klik link berikut untuk reset password Anda:</p>
+             <a href="${resetLink}">${resetLink}</a>`,
+    };
+
+    transporter.sendMail(mailOptions);
+
+    res.json({ message: "Password reset email sent." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }, // Token belum kedaluwarsa
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    user.password = newPassword; // Hash password sebelum simpan (opsional)
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Password reset successfully." });
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });

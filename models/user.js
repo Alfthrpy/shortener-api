@@ -1,23 +1,27 @@
 import mongoose from "../db/connection.js";
-import bcrypt from "bcryptjs";  // Mengimpor bcryptjs
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  isVerified: { type: Boolean, default: false }, // Untuk verifikasi email
+  resetPasswordToken: { type: String }, // Token untuk reset password
+  resetPasswordExpires: { type: Date }, // Batas waktu token reset password
   links: [{ type: mongoose.Schema.Types.ObjectId, ref: "Link" }], // Referensi ke Link
 });
 
-// Sebelum menyimpan data, hash password jika password baru dimodifikasi
+// Hash password sebelum menyimpan data
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-// Fungsi untuk mencocokkan password yang dimasukkan dengan yang disimpan di database
+// Metode untuk mencocokkan password
 userSchema.methods.matchPassword = async function (enteredPassword) {
-    console.log("inputed password in login : " + enteredPassword, "hashed password " + this.password);
+  console.log("Inputted password in login:", enteredPassword, "Hashed password:", this.password);
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
