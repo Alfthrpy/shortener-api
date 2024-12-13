@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken'
 
 // Middleware untuk otorisasi berdasarkan peran
 const authorize = (roles = []) => {
