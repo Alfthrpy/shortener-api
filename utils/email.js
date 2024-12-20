@@ -7,14 +7,20 @@ export const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  debug:true
+  debug: true,
 });
 
 // Fungsi untuk mengirim email verifikasi
 export const sendVerificationEmail = async (userEmail, userId) => {
-  const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+
   const verificationLink = `${process.env.URL}/api/auth/verify-email?token=${token}`;
-  console.log("jalan")
+  console.log("jalan");
+
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: userEmail,
@@ -23,11 +29,6 @@ export const sendVerificationEmail = async (userEmail, userId) => {
            <a href="${verificationLink}">${verificationLink}</a>`,
   };
 
-  await transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error sending email:", error);
-    } else {
-      console.log("Verification email sent:", info.response);
-    }
-  });
+
+  await transporter.sendMail(mailOptions)
 };
