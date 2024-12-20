@@ -22,7 +22,7 @@ export const sendVerificationEmail = async (userEmail, userId) => {
            <a href="${verificationLink}">${verificationLink}</a>`,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  await transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error("Error sending email:", error);
     } else {
