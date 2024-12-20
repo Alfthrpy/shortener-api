@@ -7,6 +7,7 @@ import authRoute from './src/route/authRoute.js';
 import { swaggerDocs, swaggerUi } from './swagger.js';
 import path from 'path'
 import { fileURLToPath } from 'url';
+import cors from 'cors';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use('/api/user', userRoute);
 app.use('/', shortenerRoute);
