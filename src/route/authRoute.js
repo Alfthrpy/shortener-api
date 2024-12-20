@@ -6,6 +6,7 @@ import User from "../../models/user.js";
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { sendVerificationEmail,transporter } from "../../utils/email.js";
+import dotenv from "dotenv";
 
 /**
  * @swagger
@@ -207,10 +208,11 @@ import { sendVerificationEmail,transporter } from "../../utils/email.js";
  */
 
 const router = express.Router();
+dotenv.config();
 
 // Register route
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, profile_pic } = req.body;
 
   try {
     // Cek apakah user sudah terdaftar
@@ -220,7 +222,7 @@ router.post("/register", async (req, res) => {
     }
 
     // Simpan user baru
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password,profile_pic });
     await user.save();
 
     // Kirim email verifikasi
@@ -278,7 +280,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Buat token JWT
-    const token = jwt.sign({ id: user._id.toHexString(), name : user.name }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id.toHexString(), name : user.name, email : user.email, profile_pic : user.profile_pic }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -292,7 +294,7 @@ router.post("/login", async (req, res) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/api/auth/google/callback"
+  callbackURL: `${process.env.URL}/api/auth/google/callback`
 },
 async (accessToken, refreshToken, profile, cb) => {
   try {
@@ -304,7 +306,8 @@ async (accessToken, refreshToken, profile, cb) => {
       user = new User({
         email: profile.emails[0].value,
         name: profile.displayName,
-        password:  crypto.randomBytes(20).toString('hex')
+        password:  crypto.randomBytes(20).toString('hex'),
+        profile_pic: profile.photos?.[0]?.value
       });
       await user.save();
     }
@@ -353,11 +356,13 @@ router.get('/google/callback',
   (req, res) => {
     try {
       // Generate JWT token
+      const profilePic = req.user.photos?.[0]?.value || ''
       const token = jwt.sign(
         { 
           id: req.user._id, 
           email: req.user.email,
-          name: req.user.name 
+          name: req.user.name, 
+          profile_pic : req.user.profile_pic
         }, 
         process.env.JWT_SECRET, 
         { 
@@ -369,11 +374,6 @@ router.get('/google/callback',
       res.json({
         message: "Authentication successful",
         token: token,
-        user: {
-          id: req.user._id,
-          email: req.user.email,
-          name: req.user.name
-        }
       });
     } catch (error) {
       res.status(500).json({

@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  profile_pic : { type: String, required: true},
   isVerified: { type: Boolean, default: false }, // Untuk verifikasi email
   resetPasswordToken: { type: String }, // Token untuk reset password
   resetPasswordExpires: { type: Date }, // Batas waktu token reset password
