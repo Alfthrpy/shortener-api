@@ -165,8 +165,7 @@ router.get('/api/shortener/:id',async (req, res) => {
 
 // Create a new short link
 router.post("/api/shortener", async (req, res) => {
-  const { userId, originalUrl } = req.body;
-  const shortUrl = shortid.generate();
+  const { title, userId, originalUrl,customUrl,shortUrl,qr } = req.body;
 
   // Validasi input
   if (!userId || !originalUrl) {
@@ -187,9 +186,12 @@ router.post("/api/shortener", async (req, res) => {
 
     // Simpan link baru ke database
     const newLink = new Link({
+      title,
       userId,
       originalUrl: formattedUrl,
+      customUrl,
       shortUrl,
+      qr,
     });
     const savedLink = await newLink.save();
 
