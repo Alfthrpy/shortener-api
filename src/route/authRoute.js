@@ -128,7 +128,7 @@ import dotenv from "dotenv";
 /**
  * @swagger
  * /api/auth/google:
- *   post:
+ *   get:
  *     summary: Log in via google auth
  *     tags: [Auth]
  *     requestBody:
@@ -341,7 +341,7 @@ passport.deserializeUser(async (id, cb) => {
 router.use(passport.initialize());
 
 // Initiate Google OAuth
-router.post('/google',
+router.get('/google',
   passport.authenticate('google', { 
     scope: ['profile', 'email'] 
   })
