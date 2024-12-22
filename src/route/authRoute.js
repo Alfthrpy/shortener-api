@@ -407,7 +407,7 @@ router.post("/forgot-password", async (req, res) => {
              <a href="${resetLink}">${resetLink}</a>`,
     };
 
-    transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
 
     res.json({ message: "Password reset email sent." });
   } catch (error) {
