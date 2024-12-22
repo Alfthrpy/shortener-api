@@ -356,13 +356,13 @@ router.get('/google/callback',
   (req, res) => {
     try {
       // Generate JWT token
-      const profilePic = req.user.photos?.[0]?.value || ''
+      const profilePic = req.user.photos?.[0]?.value || '';
       const token = jwt.sign(
         { 
           id: req.user._id, 
           email: req.user.email,
           name: req.user.name, 
-          profile_pic : req.user.profile_pic
+          profile_pic: profilePic
         }, 
         process.env.JWT_SECRET, 
         { 
@@ -370,11 +370,9 @@ router.get('/google/callback',
         }
       );
 
-      // Redirect to frontend with token (or send JSON response)
-      res.json({
-        message: "Authentication successful",
-        token: token,
-      });
+      // Redirect to frontend with token
+      const redirectUrl = `${process.env.FRONTEND_URL}/login?token=${token}`;
+      res.redirect(redirectUrl);
     } catch (error) {
       res.status(500).json({
         message: "Token generation failed",
@@ -383,6 +381,7 @@ router.get('/google/callback',
     }
   }
 );
+
 
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
