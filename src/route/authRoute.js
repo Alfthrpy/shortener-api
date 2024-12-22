@@ -128,7 +128,7 @@ import dotenv from "dotenv";
 /**
  * @swagger
  * /api/auth/google:
- *   get:
+ *   post:
  *     summary: Log in via google auth
  *     tags: [Auth]
  *     requestBody:
