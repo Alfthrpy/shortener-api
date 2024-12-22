@@ -234,7 +234,6 @@ router.get("/:shortId", async (req, res) => {
 
     // Menambahkan atau memperbarui entri di LinkStats
     const now = new Date();
-    now.setDate(now.getDate() + 1);
     const today = now.toLocaleDateString("en-CA", {
       timeZone: "Asia/Jakarta",
       year: "numeric",
