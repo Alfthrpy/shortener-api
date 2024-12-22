@@ -356,7 +356,7 @@ router.get('/google/callback',
   (req, res) => {
     try {
       // Generate JWT token
-      const profilePic = req.user.photos?.[0]?.value || '';
+      const profilePic = req.user.profile_pic;
       const token = jwt.sign(
         { 
           id: req.user._id, 
