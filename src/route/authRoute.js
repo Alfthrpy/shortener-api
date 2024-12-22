@@ -251,7 +251,8 @@ router.get("/verify-email", async (req, res) => {
     user.isVerified = true;
     await user.save();
 
-    res.json({ message: "Email verified successfully." });
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth?verified=true`;
+    res.redirect(redirectUrl);
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: "Invalid or expired token." });
