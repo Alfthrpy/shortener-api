@@ -371,7 +371,7 @@ router.get('/google/callback',
       );
 
       // Redirect to frontend with token
-      const redirectUrl = `${process.env.FRONTEND_URL}/login?token=${token}`;
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth?token=${token}`;
       res.redirect(redirectUrl);
     } catch (error) {
       res.status(500).json({
