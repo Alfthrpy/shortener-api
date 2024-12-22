@@ -49,7 +49,6 @@ import Link from "../../models/link.js";
  *         description: Internal server error
  */
 
-
 const router = express.Router();
 
 router.get("/:linkId", async (req, res) => {
@@ -70,55 +69,93 @@ router.get("/:linkId", async (req, res) => {
       { $group: { _id: null, totalClicks: { $sum: "$clicks" } } },
     ]);
 
-    // Query daily clicks
+    // Fungsi untuk menghitung frekuensi lokasi dan perangkat
+    function countFrequencies(arr) {
+      return arr.reduce((acc, value) => {
+        acc[value] = (acc[value] || 0) + 1;
+        return acc;
+      }, {});
+    }
+
+    // Query daily clicks with location and device
     const dailyClicks = await LinkStats.aggregate([
       { $match: { linkId: objectId } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
           clicks: { $sum: "$clicks" },
+          cities: { $push: "$city" },
+          countries: { $push: "$country" },
+          devices: { $push: "$device" },
         },
       },
       { $sort: { _id: 1 } },
     ]);
 
-    // Query weekly clicks
+    // Query weekly clicks with location and device
     const weeklyClicks = await LinkStats.aggregate([
       { $match: { linkId: objectId } },
       {
         $group: {
           _id: { year: { $year: "$date" }, week: { $isoWeek: "$date" } },
           clicks: { $sum: "$clicks" },
+          cities: { $push: "$city" },
+          countries: { $push: "$country" },
+          devices: { $push: "$device" },
         },
       },
       { $sort: { "_id.year": 1, "_id.week": 1 } },
     ]);
 
-    // Query monthly clicks
+    // Query monthly clicks with location and device
     const monthlyClicks = await LinkStats.aggregate([
       { $match: { linkId: objectId } },
       {
         $group: {
           _id: { year: { $year: "$date" }, month: { $month: "$date" } },
           clicks: { $sum: "$clicks" },
+          cities: { $push: "$city" },
+          countries: { $push: "$country" },
+          devices: { $push: "$device" },
         },
       },
       { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
-    // Format the response
+    // Format the response with frequency counting
     const response = {
       total_clicks: totalClicks[0]?.totalClicks || 0,
       daily_clicks: Object.fromEntries(
-        dailyClicks.map((d) => [d._id, d.clicks])
+        dailyClicks.map((d) => [
+          d._id,
+          {
+            clicks: d.clicks,
+            cities: countFrequencies(d.cities),
+            countries: countFrequencies(d.countries),
+            devices: countFrequencies(d.devices),
+          },
+        ])
       ),
       weekly_clicks: Object.fromEntries(
-        weeklyClicks.map((w) => [`${w._id.year}-W${w._id.week}`, w.clicks])
+        weeklyClicks.map((w) => [
+          `${w._id.year}-W${w._id.week}`,
+          {
+            clicks: w.clicks,
+            cities: countFrequencies(w.cities),
+            countries: countFrequencies(w.countries),
+            devices: countFrequencies(w.devices),
+          },
+        ])
       ),
       monthly_clicks: Object.fromEntries(
         monthlyClicks.map((m) => [
           `${m._id.year}-${String(m._id.month).padStart(2, "0")}`,
-          m.clicks,
+          {
+            clicks: m.clicks,
+            cities: countFrequencies(m.cities),
+            countries: countFrequencies(m.countries),
+            devices: countFrequencies(m.devices),
+          },
         ])
       ),
     };
