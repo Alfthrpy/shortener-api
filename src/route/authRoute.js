@@ -341,7 +341,7 @@ passport.deserializeUser(async (id, cb) => {
 router.use(passport.initialize());
 
 // Initiate Google OAuth
-router.get('/google',
+router.post('/google',
   passport.authenticate('google', { 
     scope: ['profile', 'email'] 
   })
