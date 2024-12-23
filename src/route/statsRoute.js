@@ -82,6 +82,12 @@ router.get("/:linkId", async (req, res) => {
         { $group: { _id: null, totalClicks: { $sum: "$clicks" } } },
       ]);
 
+
+      if(totalClicks[0]?.totalClicks === undefined){
+        return res.json({message : "No clicks yet"}).status(200);
+      }
+
+
       // Fungsi untuk menghitung frekuensi lokasi dan perangkat
       function countFrequencies(arr) {
         return arr.reduce((acc, value) => {
