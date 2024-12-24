@@ -4,7 +4,7 @@ import User from "../../models/user.js"; // Pastikan path ini sesuai
 import LinkStats from "../../models/linkStats.js";
 import shortid from "shortid";
 import requestIp from "request-ip";
-import { getLocationByIp,getDeviceDetails } from "../../utils/getClientInfo.js";
+import {getDeviceDetails } from "../../utils/getClientInfo.js";
 
 /**
  * @swagger
@@ -225,11 +225,9 @@ router.get("/:shortId", async (req, res) => {
     }
 
     // Mendapatkan lokasi dan detail perangkat
-    const location = await getLocationByIp(clientIp);
     const device = getDeviceDetails(userAgent);
 
     // Debugging: Pastikan lokasi dan device diambil dengan benar
-    console.log("Location: ", location); // Cek apakah location valid
     console.log("Device: ", device); // Cek apakah device valid
 
     // Menambahkan atau memperbarui entri di LinkStats
@@ -243,12 +241,10 @@ router.get("/:shortId", async (req, res) => {
 
     // Melakukan update atau memasukkan data statistik
     const linkStats = await LinkStats.findOneAndUpdate(
-      { linkId: link._id, date: today }, // Cari berdasarkan linkId dan tanggal
+      { linkId: link._id, date: today, device: device.os }, // Cari berdasarkan linkId dan tanggal
       { 
         $inc: { clicks: 1 }, // Tambahkan jumlah klik
         $set: { 
-          city: location.city || "Unknown", // Pastikan ada default value
-          country: location.country || "Unknown", // Pastikan ada default value
           device: device.os || "Unknown", // Pastikan ada default value
         }
       },
