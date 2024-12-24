@@ -103,8 +103,6 @@ router.get("/:linkId", async (req, res) => {
           $group: {
             _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
             clicks: { $sum: "$clicks" },
-            cities: { $push: "$city" },
-            countries: { $push: "$country" },
             devices: { $push: "$device" },
           },
         },
@@ -117,8 +115,6 @@ router.get("/:linkId", async (req, res) => {
           $group: {
             _id: { year: { $year: "$date" }, week: { $isoWeek: "$date" } },
             clicks: { $sum: "$clicks" },
-            cities: { $push: "$city" },
-            countries: { $push: "$country" },
             devices: { $push: "$device" },
           },
         },
@@ -131,8 +127,6 @@ router.get("/:linkId", async (req, res) => {
           $group: {
             _id: { year: { $year: "$date" }, month: { $month: "$date" } },
             clicks: { $sum: "$clicks" },
-            cities: { $push: "$city" },
-            countries: { $push: "$country" },
             devices: { $push: "$device" },
           },
         },
@@ -147,8 +141,6 @@ router.get("/:linkId", async (req, res) => {
             d._id,
             {
               clicks: d.clicks,
-              cities: countFrequencies(d.cities),
-              countries: countFrequencies(d.countries),
               devices: countFrequencies(d.devices),
             },
           ])
@@ -158,8 +150,6 @@ router.get("/:linkId", async (req, res) => {
             `${w._id.year}-W${w._id.week}`,
             {
               clicks: w.clicks,
-              cities: countFrequencies(w.cities),
-              countries: countFrequencies(w.countries),
               devices: countFrequencies(w.devices),
             },
           ])
@@ -169,8 +159,6 @@ router.get("/:linkId", async (req, res) => {
             `${m._id.year}-${String(m._id.month).padStart(2, "0")}`,
             {
               clicks: m.clicks,
-              cities: countFrequencies(m.cities),
-              countries: countFrequencies(m.countries),
               devices: countFrequencies(m.devices),
             },
           ])
