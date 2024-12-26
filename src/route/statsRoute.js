@@ -53,22 +53,28 @@ const router = express.Router();
 
 router.get("/:linkId", async (req, res) => {
   const linkId = req.params.linkId;
-  
-  if (linkId === "total") {
+  const userId = req.query.userId;
+
+  if (linkId === "total" && userId) {
     try {
-      // Jika linkId adalah "total", ambil total klik seluruh link
+      // Find all links created by the user
+      const userLinks = await Link.find({ userId: new mongoose.Types.ObjectId(userId) }).select('_id');
+      const linkIds = userLinks.map(link => link._id);
+
+      // Aggregate total clicks for all links created by the user
       const totalClicks = await LinkStats.aggregate([
+        { $match: { linkId: { $in: linkIds } } },
         { $group: { _id: null, totalClicks: { $sum: "$clicks" } } },
       ]);
 
       return res.json({ total_clicks: totalClicks[0]?.totalClicks || 0 }).status(200);
     } catch (error) {
-      console.error("Error fetching total clicks for all links:", error);
+      console.error("Error fetching total clicks for user links:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   } else {
     try {
-      // Konversi linkId ke ObjectId
+      // Convert linkId to ObjectId
       const objectId = new mongoose.Types.ObjectId(linkId);
 
       const link = await Link.findById(objectId);
@@ -82,13 +88,11 @@ router.get("/:linkId", async (req, res) => {
         { $group: { _id: null, totalClicks: { $sum: "$clicks" } } },
       ]);
 
-
-      if(totalClicks[0]?.totalClicks === undefined){
-        return res.json({message : "No clicks yet"}).status(200);
+      if (totalClicks[0]?.totalClicks === undefined) {
+        return res.json({ message: "No clicks yet" }).status(200);
       }
 
-
-      // Fungsi untuk menghitung frekuensi lokasi dan perangkat
+      // Function to count frequencies of locations and devices
       function countFrequencies(arr) {
         return arr.reduce((acc, value) => {
           acc[value] = (acc[value] || 0) + 1;
