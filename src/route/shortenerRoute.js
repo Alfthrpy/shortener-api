@@ -167,6 +167,7 @@ router.get("/api/shortener/:id", async (req, res) => {
 // Create a new short link
 router.post("/api/shortener", async (req, res) => {
   const { title, userId, originalUrl, customUrl, shortUrl, qr } = req.body;
+  console.log(customUrl,shortUrl)
 
   // Validasi input
   if (!userId || !originalUrl) {
