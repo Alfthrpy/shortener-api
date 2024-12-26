@@ -216,8 +216,8 @@ router.get("/:shortId", async (req, res) => {
   console.log(shortId);
 
   try {
-    // Mencari link berdasarkan shortUrl (id)
-    const link = await Link.findOne({ shortUrl: shortId });
+    // Mencari link berdasarkan shortUrl atau customUrl
+    const link = await Link.findOne({ $or: [{ shortUrl: shortId }, { customUrl: shortId }] });
 
     // Jika link tidak ditemukan, kirim respons error 404
     if (!link) {
