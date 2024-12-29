@@ -274,11 +274,10 @@ router.put("/api/shortener/:id", async (req, res) => {
     ? originalUrl
     : `http://${originalUrl}`;
 
-  const shortUrl = shortid.generate();
   try {
     const updatedLink = await Link.findByIdAndUpdate(
       id,
-      { originalUrl: formattedUrl, shortUrl },
+      { originalUrl: formattedUrl},
       { new: true, runValidators: true }
     );
 
