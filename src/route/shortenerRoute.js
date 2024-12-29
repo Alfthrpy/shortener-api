@@ -167,7 +167,7 @@ router.get("/api/shortener/:id", async (req, res) => {
 // Create a new short link
 router.post("/api/shortener", async (req, res) => {
   const { title, userId, originalUrl, customUrl, shortUrl, qr } = req.body;
-  console.log(customUrl,shortUrl)
+  console.log(customUrl, shortUrl);
 
   // Validasi input
   if (!userId || !originalUrl) {
@@ -184,6 +184,14 @@ router.post("/api/shortener", async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
+    }
+
+    // Periksa apakah customUrl sudah ada
+    if (customUrl) {
+      const existingLink = await Link.findOne({ customUrl });
+      if (existingLink) {
+        return res.status(400).json({ error: "Custom URL already exists" });
+      }
     }
 
     // Simpan link baru ke database
