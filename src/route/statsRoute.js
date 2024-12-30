@@ -117,7 +117,10 @@ router.get("/:linkId", async (req, res) => {
         { $match: { linkId: objectId } },
         {
           $group: {
-            _id: { year: { $year: "$date" }, week: { $isoWeek: "$date" } },
+            _id: { 
+              year: { $isoWeekYear: "$date" }, // Changed from $year to $isoWeekYear
+              week: { $isoWeek: "$date" } 
+            },
             clicks: { $sum: "$clicks" },
             devices: { $push: "$device" },
           },
