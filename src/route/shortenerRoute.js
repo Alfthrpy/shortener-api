@@ -45,12 +45,24 @@ import {getDeviceDetails } from "../../utils/getClientInfo.js";
  *           schema:
  *             type: object
  *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Title of the short link
  *               userId:
  *                 type: string
  *                 description: ID of the user creating the short link
  *               originalUrl:
  *                 type: string
  *                 description: The original URL to be shortened
+ *               customUrl:
+ *                 type: string
+ *                 description: Custom URL for the short link
+ *               shortUrl:
+ *                 type: string
+ *                 description: Generated short URL
+ *               qr:
+ *                 type: string
+ *                 description: QR code for the short link
  *     responses:
  *       201:
  *         description: Short link created successfully

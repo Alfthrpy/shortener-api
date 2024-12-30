@@ -1,9 +1,7 @@
 import express from "express";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
 import User from "../../models/user.js";
-import { transporter } from "../../utils/email.js"; // Pastikan fungsi email tersedia
-
+import { transporter } from "../../utils/email.js";
 const router = express.Router();
 
 // Forgot Password Route
@@ -25,7 +23,6 @@ router.post("/forgot-password", async (req, res) => {
     // Generate reset link
     const resetLink = `${process.env.URL}/api/auth/reset-password?token=${token}`;
 
-    // Send reset email
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -43,21 +40,19 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// Reset Password Route
 router.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
     const user = await User.findOne({
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }, // Check if token is still valid
+      resetPasswordExpires: { $gt: Date.now() }, 
     });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired token." });
     }
 
-    // Update password and clear reset fields
     user.password = newPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;

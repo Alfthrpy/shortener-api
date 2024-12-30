@@ -218,7 +218,6 @@ import User from '../../models/user.js';
 
 
 const router = express.Router();
-// Get all users
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
@@ -234,22 +233,22 @@ router.get('/:id/links', async (req, res) => {
   const id = req.params.id;
 
   try {
-    // Cari user berdasarkan ID dan populate field 'links'
+    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid User ID' });
     }
     const user = await User.findById(id).populate('links').exec();
 
-    // Jika user tidak ditemukan
+   
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Kembalikan data lengkap dari links
+   
     return res.status(200).json({
       message: 'Links retrieved successfully',
       userId: id,
-      links: user.links, // Data lengkap links
+      links: user.links, 
     });
   } catch (error) {
     console.error('Error retrieving links:', error);
@@ -258,10 +257,9 @@ router.get('/:id/links', async (req, res) => {
 });
 
 
-// Routes for specific user by ID
+
 router
   .route('/:id')
-  // Get user by ID
   .get(async (req, res) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -279,7 +277,6 @@ router
     }
   })
 
-  // Update user by ID
   .put(async (req, res) => {
     const { id } = req.params;
     const { name, email } = req.body;
@@ -292,7 +289,7 @@ router
       const updatedUser = await User.findByIdAndUpdate(
         id,
         { name, email },
-        { new: true, runValidators: true } // Return the updated document and validate fields
+        { new: true, runValidators: true } 
       );
       if (!updatedUser) {
         return res.status(404).json({ error: 'User not found' });
